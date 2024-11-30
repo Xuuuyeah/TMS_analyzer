@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>TASE: TMS-Analyzer & Segment Extractor</title>
+<link rel="stylesheet" type="text/css" href="bar.css" />
+<link rel="shortcut icon" type="image/png" href="favicon.png" />
+</head>
+<div id="container">
+	<div id="banner"><center>
+		<h1>  TMS-Analyzer & Segment Extractor </h1>
+                <h3>  Extract by region of TMSs or coordinates, as well as split TMSs into groups of certain size </h3>
+	</center></div>
+    <div id="content">
+    <center>
+    <form action="cgi-bin/tmsplit_CGI.py" method="post">
+    <table cellspacing="0" width="80%" style="padding:0; margin:0;">
+  <tr>
+    <th colspan="2" class="title"><a href=".">Biotools</a>&gt;tmsplit<br><br><br>input</th>
+    </tr>
+
+ 
+ <tr>
+    <td class="one">Input Sequence:</td>
+    <td class="three">
+Please enter the sequence with FASTA(<a href="http://www.clustal.org/">?</a>) format you want to analyze:<p>
+     <textarea name="Sequence" cols="80" style="width:100%; height:100px" class="one" required></textarea>
+    </td>
+    </tr>
+
+
+ <tr>
+    <td class="one">TMS Coordinates(Optional):</td>
+    <td class="three">
+Please enter the sequence with FASTA(<a href="http://www.clustal.org/">?</a>) format you want to analyze:<p>
+     <textarea name="TMSs coordinates" cols="80" style="width:100%; height:100px" class="one"></textarea>
+    </td>
+    </tr>
+
+
+  <tr>
+    <td class="one">Mode:</td>
+    <td class="three">
+      <select name="Mode" id="modeSelect" class="one" class="one" onchange="toggleOptions()" required>
+        <option value="-Please select a mode-" selected>-Please select a mode-</option>
+        <option value="Range of TMSs"> Extract by Index of TMSs</option>
+        <option value="Group of TMSs">Grouping TMSs</option>
+        <option value="TMS segment">Extract by Index of Amino Acid</option>
+      </select>
+    </td>
+    </tr>
+
+
+
+  <tr>
+    <td class="one">Input Option:</td>
+    <td class="three">
+      <select name="InputOption" id="inputOptionRow" class="one" class="one" onchange="toggleOptions()" required>
+        <option value="-Please select a mode-" selected>-Please select a mode-</option>
+        <option value="Uniform Grouping/Extraction">Grouping/Extract by Single Set of Index</option>
+
+        <option value="Custom Grouping/Extraction">Grouping/Extract by Multiple Sets of index</option>
+      </select>
+    </td>
+    </tr>
+
+
+  <tr id="groupSizeRow" style="display: none;">
+    <td class="one">Uniform Grouping Size:</td>
+    <td class="three">
+      <input type="number" name="Group size" id="groupSizeInput" class="one" min="1" step="1" style="width: 40px;">
+      <span id="groupSizeError" style="display: none; color: red;">Group Size must be a positive integer.</span>
+    </td>
+  </tr>
+
+ <tr id="customGroupSizeRow" style="display: none;">
+    <td class="one">Custom Grouping Size(Optional):</td>
+    <td class="three">
+     <textarea name="Custom group size" id=customGroupSizeInput cols="80" style="width:100%; height:100px" class="one"></textarea>
+    </td>
+    </tr>
+
+
+  <tr id="remainOptionsRow" style="display: none;">
+    <td class="one">Remaining TMSs Handling:</td>
+    <td class="three">
+      <select name="RemainingTMSsHandling" id=remainOptionInput class="one">
+        <option value="Append to Last Group">Append to Last Group</option>
+        <option value="Discard">Discard</option>
+        <option value="Create New Group">Create New Group</option>
+      </select>
+    </td>
+  </tr>
+
+<tr id="tmsIndicesRow" style="display: none;">
+  <td class="one">Uniform Extraction Indices:</td>
+  <td class="three">
+    <span>start-stop: </span>
+    <input type="number" name="Start" id="startInput" class="one" min="0" style="width: 40px;">
+    <span>-</span>
+    <input type="number" name="Stop" id="stopInput" class="one" min="0" style="width: 40px;">
+  </td>
+</tr>
+
+
+ <tr id="customExtractSizeRow" style="display: none;">
+    <td class="one">Custom Extraction Indices(Optional):</td>
+    <td class="three">
+     <textarea name="Custom extract region" id=customExtractSizeInput cols="80" style="width:100%; height:100px" class="one" required></textarea>
+    </td>
+    </tr>
+
+<script>
+  function toggleOptions() {
+    var modeSelect = document.getElementById("modeSelect");
+    var groupSizeInput = document.getElementById("groupSizeInput");
+    var customGroupSizeInput = document.getElementById("customGroupSizeInput");
+    var remainOptionInput = document.getElementById("remainOptionInput");
+    var startInput = document.getElementById("startInput");
+    var stopInput = document.getElementById("stopInput");
+    var customExtractSizeInput = document.getElementById("customExtractSizeInput");
+    if (modeSelect.value === "Group of TMSs") {
+      var inputOptionRow = document.getElementById("inputOptionRow");
+      if (inputOptionRow.value === "Uniform Grouping/Extraction") {
+        groupSizeRow.style.display = "table-row"
+        customGroupSizeRow.style.display = "none"
+        remainOptionsRow.style.display = "table-row" 
+        tmsIndicesRow.style.display = "none"
+        customExtractSizeRow.style.display = "none"
+        groupSizeInput.required = true
+        customGroupSizeInput.required = false
+        remainOptionInput.required = true
+        startInput.required = false
+        stopInput.required = false
+        customExtractSizeInput.required = false
+      } else if (inputOptionRow.value === "Custom Grouping/Extraction") {
+        groupSizeRow.style.display = "none"
+        customGroupSizeRow.style.display = "table-row"
+        remainOptionsRow.style.display = "table-row"
+        tmsIndicesRow.style.display = "none"
+        customExtractSizeRow.style.display = "none"
+        groupSizeInput.required = false
+        customGroupSizeInput.required = true
+        remainOptionInput.required = true
+        startInput.required = false
+        stopInput.required = false
+        customExtractSizeInput.required = false
+}
+    } else if (modeSelect.value === "Range of TMSs" || modeSelect.value === "TMS segment") {
+      var inputOptionRow = document.getElementById("inputOptionRow"); 
+      if (inputOptionRow.value === "Uniform Grouping/Extraction") {
+        groupSizeRow.style.display = "none"
+        customGroupSizeRow.style.display = "none"
+        remainOptionsRow.style.display = "none"
+        tmsIndicesRow.style.display = "table-row"
+        customExtractSizeRow.style.display = "none"
+        groupSizeInput.required = false
+        customGroupSizeInput.required = false
+        remainOptionInput.required = false
+        startInput.required = true
+        stopInput.required = true
+        customExtractSizeInput.required = false      
+    } else if (inputOptionRow.value === "Custom Grouping/Extraction") {
+        groupSizeRow.style.display = "none"
+        customGroupSizeRow.style.display = "none"
+        remainOptionsRow.style.display = "none"
+        tmsIndicesRow.style.display = "none"
+        customExtractSizeRow.style.display = "table-row"
+        groupSizeInput.required = false
+        customGroupSizeInput.required = false
+        remainOptionInput.required = false
+        startInput.required = false
+        stopInput.required = false
+        customExtractSizeInput.required = true
+    }
+  }
+}
+  toggleOptions();
+</script>
+
+
+
+<tr>
+    <td class="one">Tail Length:</td>
+    <td class="three">
+        <input type="number" name="TailLength" class="one" min="0" step="1" style="width: 40px;" value="0">
+    </td>
+</tr>
+
+
+<tr>
+  <td class="one">Allow Invalid Amino Acids:</td>
+  <td class="three">
+    <input type="radio" name="allowInvalidAminoAcids" value="true" id="optionTrue" checked required>
+    <label for="optionTrue">True</label>
+    <input type="radio" name="allowInvalidAminoAcids" value="false" id="optionFalse" required>
+    <label for="optionFalse">False</label>
+  </td>
+</tr>
+
+  <tr>
+    <td class="one"></td>
+    <td class="three">
+<div align="right"><input type="submit" value="Click here to predict" class="submit">
+            <input type="reset" value="Clear" class="reset"></div>
+    </td>
+    </tr>
+    </table>
+    </form>
+  </center>
+  </div>
+  <div id="footer">
+	<center>
+    <table cellspacing="0" width="80%" style="padding:0; margin:0;">
+    <tr>
+      <th width="142" class="one">About</th>
+      <td>Plots the hydropathy, amphipathicity, and TMS topology of a single protein sequence.</td>
+    </tr>
+    <tr>
+      <th class="two">Get help</th>
+      <td class="two">This program was developed in the group of <a href="http://www.tcdb.org/">Dr. Milton Saier</a>. Questions can be sent to: Yiran Xu &lt;120090206 at-sign cuhk dot edu dot cn&gt;, or Arturo Medrano &lt;l1medranosoto at-sigh ucsd dot edu&gt;.</td> 
+    </tr>
+  </table>
+	</center>
+	</div>
+</div>
+</body>
+</html>
